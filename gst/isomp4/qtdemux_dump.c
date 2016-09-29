@@ -670,39 +670,39 @@ qtdemux_dump_tfhd (GstQTDemux * qtdemux, GstByteReader * data, int depth)
     return FALSE;
   GST_LOG ("%*s  track_id: %u", depth, "", track_id);
 
-  if (flags & TF_BASE_DATA_OFFSET) {
+  if (flags & TF_BASE_DATA_OFFSET_PRESENT) {
     if (!gst_byte_reader_get_uint64_be (data, &base_data_offset))
       return FALSE;
     GST_LOG ("%*s    base-data-offset: %" G_GUINT64_FORMAT,
         depth, "", base_data_offset);
   }
 
-  if (flags & TF_SAMPLE_DESCRIPTION_INDEX) {
+  if (flags & TF_SAMPLE_DESCRIPTION_INDEX_PRESENT) {
     if (!gst_byte_reader_get_uint32_be (data, &n))
       return FALSE;
     GST_LOG ("%*s    sample-description-index: %u", depth, "", n);
   }
 
-  if (flags & TF_DEFAULT_SAMPLE_DURATION) {
+  if (flags & TF_DEFAULT_SAMPLE_DURATION_PRESENT) {
     if (!gst_byte_reader_get_uint32_be (data, &n))
       return FALSE;
     GST_LOG ("%*s    default-sample-duration:  %u", depth, "", n);
   }
 
-  if (flags & TF_DEFAULT_SAMPLE_SIZE) {
+  if (flags & TF_DEFAULT_SAMPLE_SIZE_PRESENT) {
     if (!gst_byte_reader_get_uint32_be (data, &n))
       return FALSE;
     GST_LOG ("%*s    default-sample-size:  %u", depth, "", n);
   }
 
-  if (flags & TF_DEFAULT_SAMPLE_FLAGS) {
+  if (flags & TF_DEFAULT_SAMPLE_FLAGS_PRESENT) {
     if (!gst_byte_reader_get_uint32_be (data, &n))
       return FALSE;
     GST_LOG ("%*s    default-sample-flags:  %u", depth, "", n);
   }
 
   GST_LOG ("%*s    duration-is-empty:     %s", depth, "",
-      flags & TF_DURATION_IS_EMPTY ? "yes" : "no");
+      flags & TF_DURATION_IS_EMPTY_PRESENT ? "yes" : "no");
 
   return TRUE;
 }

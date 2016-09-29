@@ -57,13 +57,13 @@ struct _QtNodeType {
 
 enum TfFlags
 {
-  TF_BASE_DATA_OFFSET         = 0x000001,   /* base-data-offset-present */
-  TF_SAMPLE_DESCRIPTION_INDEX = 0x000002,   /* sample-description-index-present */
-  TF_DEFAULT_SAMPLE_DURATION  = 0x000008,   /* default-sample-duration-present */
-  TF_DEFAULT_SAMPLE_SIZE      = 0x000010,   /* default-sample-size-present */
-  TF_DEFAULT_SAMPLE_FLAGS     = 0x000020,   /* default-sample-flags-present */
-  TF_DURATION_IS_EMPTY        = 0x010000,   /* duration-is-empty */
-  TF_DEFAULT_BASE_IS_MOOF     = 0x020000    /* default-base-is-moof */
+  TF_BASE_DATA_OFFSET_PRESENT         = 0x000001,   /* base-data-offset-present */
+  TF_SAMPLE_DESCRIPTION_INDEX_PRESENT = 0x000002,   /* sample-description-index-present */
+  TF_DEFAULT_SAMPLE_DURATION_PRESENT  = 0x000008,   /* default-sample-duration-present */
+  TF_DEFAULT_SAMPLE_SIZE_PRESENT      = 0x000010,   /* default-sample-size-present */
+  TF_DEFAULT_SAMPLE_FLAGS_PRESENT     = 0x000020,   /* default-sample-flags-present */
+  TF_DURATION_IS_EMPTY_PRESENT        = 0x010000,   /* duration-is-empty */
+  TF_DEFAULT_BASE_IS_MOOF_PRESENT     = 0x020000    /* default-base-is-moof */
 };
 
 enum TrFlags

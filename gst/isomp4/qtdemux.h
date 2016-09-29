@@ -132,6 +132,9 @@ struct _GstQTDemux {
    * a Fragmented MP4 (containing the [mvex] atom in the header) */
   gboolean fragmented;
 
+  /* The prev fragment sequence number. Allow to check fragment number is valid */
+  guint32 prev_frag_seqnum;
+
   /* PULL-BASED only : If TRUE there is a pending seek */
   gboolean fragmented_seek_pending;
 
