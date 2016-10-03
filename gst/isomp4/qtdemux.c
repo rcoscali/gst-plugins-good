@@ -446,24 +446,24 @@ static GstStaticPadTemplate gst_qtdemux_sink_template =
     GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("video/quicktime; video/mj2; audio/x-m4a; "
-        "application/x-3gp")
+    GST_STATIC_CAPS
+    ("video/quicktime; video/mj2; video/x-h264; audio/x-m4a; audio/x-mpeg; application/x-3gp")
     );
 
 static GstStaticPadTemplate gst_qtdemux_videosrc_template =
-GST_STATIC_PAD_TEMPLATE ("video_%u",
+GST_STATIC_PAD_TEMPLATE ("video_0x%02x",
     GST_PAD_SRC,
     GST_PAD_SOMETIMES,
     GST_STATIC_CAPS_ANY);
 
 static GstStaticPadTemplate gst_qtdemux_audiosrc_template =
-GST_STATIC_PAD_TEMPLATE ("audio_%u",
+GST_STATIC_PAD_TEMPLATE ("audio_0x%02x",
     GST_PAD_SRC,
     GST_PAD_SOMETIMES,
     GST_STATIC_CAPS_ANY);
 
 static GstStaticPadTemplate gst_qtdemux_subsrc_template =
-GST_STATIC_PAD_TEMPLATE ("subtitle_%u",
+GST_STATIC_PAD_TEMPLATE ("subtitle_0x%02x",
     GST_PAD_SRC,
     GST_PAD_SOMETIMES,
     GST_STATIC_CAPS_ANY);
@@ -2602,6 +2602,7 @@ qtdemux_parse_piff (GstQTDemux * qtdemux,
     }
 
     algorithm_id >>= 8;
+    GST_DEBUG_OBJECT (qtdemux, "Algo ID = %d", algorithm_id);
     if (algorithm_id == 0) {
       is_encrypted = FALSE;
     } else if (algorithm_id == 1) {
@@ -3652,6 +3653,8 @@ qtdemux_parse_pssh (GstQTDemux * qtdemux, GNode * node)
   sysid_string =
       qtdemux_uuid_bytes_to_string ((const guint8 *) node->data + 12);
 
+  GST_DEBUG_OBJECT (qtdemux, "PSSH System ID = %s", sysid_string);
+
   gst_qtdemux_append_protection_system_id (qtdemux, sysid_string);
 
   pssh = gst_buffer_new_wrapped (g_memdup (node->data, pssh_size), pssh_size);
@@ -3705,8 +3708,8 @@ qtdemux_parse_moof (GstQTDemux * qtdemux, const guint8 * buffer, guint length,
   // ISO14496: There is no requirement that the sequence numbers be
   // consecutive, only that the value in a given movie fragment be
   // greater than in any preceding movie fragment.
-  if (qtdemux->prev_frag_seqnum && qtdemux->prev_frag_seqnum <= frag_seqnum) {
-    GST_WARNING_OBJECT (qtdemux, "   Fragment #%d is INVALID (>= %d) !!!",
+  if (qtdemux->prev_frag_seqnum && qtdemux->prev_frag_seqnum >= frag_seqnum) {
+    GST_WARNING_OBJECT (qtdemux, "   Fragment #%d is INVALID (<= %d) !!!",
         frag_seqnum, qtdemux->prev_frag_seqnum);
     //goto fail; // don't be too restrictive at now
   }
@@ -7268,6 +7271,11 @@ qtdemux_parse_node (GstQTDemux * qtdemux, GNode * node, const guint8 * buffer,
         break;
       }
       case FOURCC_enca:
+      {
+        qtdemux_parse_container (qtdemux, node, buffer + 36, end);
+        break;
+      }
+      case FOURCC_senc:
       {
         qtdemux_parse_container (qtdemux, node, buffer + 36, end);
         break;
