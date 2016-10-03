@@ -360,6 +360,9 @@ G_BEGIN_DECLS
 #define FOURCC_tenc     GST_MAKE_FOURCC('t','e','n','c')
 #define FOURCC_cenc     GST_MAKE_FOURCC('c','e','n','c')
 
+/* Common Encryption HbbTV 1.5 extensions */
+#define FOURCC_senc     GST_MAKE_FOURCC('s','e','n','c')
+
 G_END_DECLS
 
 #endif /* __FOURCC_H__ */
