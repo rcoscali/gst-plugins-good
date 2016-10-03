@@ -9,6 +9,8 @@
  * Copyright (C) <2013> Intel Corporation
  * Copyright (C) <2014> Centricular Ltd
  * Copyright (C) <2015> YouView TV Ltd.
+ * Copyright (C) <2016> NagraFrance S.A.
+ * Copyright (C) <2016> Rémi Cohen-Scali <remi.cohen-scali@nagra.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
