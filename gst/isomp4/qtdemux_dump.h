@@ -1,6 +1,8 @@
 /* GStreamer
  * Copyright (C) <1999> Erik Walthinsen <omega@cse.ogi.edu>
  * Copyright (C) <2009> STEricsson <benjamin.gaignard@stericsson.com>
+ * Copyright (C) <2016> NagraFrance S.A.
+ * Copyright (C) <2016> Rémi Cohen-Scali <remi.cohen-scali@nagra.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -81,11 +83,12 @@ gboolean qtdemux_dump_sdtp (GstQTDemux * qtdemux, GstByteReader * data,
     int depth);
 gboolean qtdemux_dump_tfdt (GstQTDemux * qtdemux, GstByteReader * data,
     int depth);
+gboolean qtdemux_dump_svmi (GstQTDemux * qtdemux, GstByteReader * data,
+    int depth);
+gboolean qtdemux_dump_senc (GstQTDemux * qtdemux, GstByteReader * data,
+    int depth);
 gboolean qtdemux_dump_unknown (GstQTDemux * qtdemux, GstByteReader * data,
     int depth);
-gboolean qtdemux_dump_svmi (GstQTDemux *qtdemux, GstByteReader *data,
-    int depth);
-
 gboolean qtdemux_node_dump (GstQTDemux * qtdemux, GNode * node);
 
 G_END_DECLS
