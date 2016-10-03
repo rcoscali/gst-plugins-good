@@ -2,6 +2,8 @@
  * Copyright (C) <1999> Erik Walthinsen <omega@cse.ogi.edu>
  * Copyright (C) 2009 Tim-Philipp Müller <tim centricular net>
  * Copyright (C) <2009> STEricsson <benjamin.gaignard@stericsson.com>
+ * Copyright (C) <2016> NagraFrance S.A.
+ * Copyright (C) <2016> Rémi Cohen-Scali <remi.cohen-scali@nagra.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -29,6 +31,7 @@
 
 #define GET_UINT8(data)   gst_byte_reader_get_uint8_unchecked(data)
 #define GET_UINT16(data)  gst_byte_reader_get_uint16_be_unchecked(data)
+#define GET_UINT24(data)  gst_byte_reader_get_uint24_be_unchecked(data)
 #define GET_UINT32(data)  gst_byte_reader_get_uint32_be_unchecked(data)
 #define GET_UINT64(data)  gst_byte_reader_get_uint64_be_unchecked(data)
 #define GET_FP32(data)   (gst_byte_reader_get_uint32_be_unchecked(data)/65536.0)
@@ -887,6 +890,65 @@ qtdemux_dump_svmi (GstQTDemux * qtdemux, GstByteReader * data, int depth)
           ((guint8) GET_UINT8 (data)) & 0x01);
     }
   }
+  return TRUE;
+}
+
+gboolean
+qtdemux_dump_senc (GstQTDemux * qtdemux, GstByteReader * data, int depth)
+{
+  guint16 version, flags;
+
+  version = GET_UINT8 (data);
+  flags = GET_UINT24 (data);
+
+  GST_LOG ("%*s  version/flags: %02x/%06x", depth, "", version, flags);
+
+  if (!version) {
+    /* sample encryption */
+    guint32 sample_count = GET_UINT32 (data);
+    guint i;
+
+    GST_LOG ("%*s  sample count = %d", depth, "", sample_count);
+
+    for (i = 0; i < sample_count; i++) {
+      guint8 IV[8];
+
+      GST_LOG ("%*s      sample #%d", depth, "", i);
+
+      IV[0] = GET_UINT8 (data);
+      IV[1] = GET_UINT8 (data);
+      IV[2] = GET_UINT8 (data);
+      IV[3] = GET_UINT8 (data);
+      IV[4] = GET_UINT8 (data);
+      IV[5] = GET_UINT8 (data);
+      IV[6] = GET_UINT8 (data);
+      IV[7] = GET_UINT8 (data);
+
+      GST_LOG ("%*s          IV = %02x%02x%02x%02x%02x%02x%02x%02x",
+          depth, "", IV[0], IV[1], IV[2], IV[3], IV[4], IV[5], IV[6], IV[7]);
+
+      if (flags & 0x000002) {
+        guint16 subsample_count = GET_UINT16 (data);
+        guint j;
+
+        GST_LOG ("%*s          Subsample count = %d", depth, "",
+            subsample_count);
+
+        for (j = 0; j < subsample_count; j++) {
+          guint16 clearBytes = GET_UINT16 (data);
+          guint32 encryptedBytes = GET_UINT32 (data);
+
+          GST_LOG ("%*s              Subsample #%d", depth, "", j);
+          GST_LOG ("%*s                  #Bytes in clear: %d", depth, "",
+              clearBytes);
+          GST_LOG ("%*s                  #Bytes ciphered: %d", depth, "",
+              encryptedBytes);
+        }
+      }
+    }
+
+  }
+
   return TRUE;
 }
 
