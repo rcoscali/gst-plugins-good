@@ -1,1 +1,60 @@
 This is GStreamer 1.9.2
+
+Using Bento4 for stream generation & testing
+
+# Play unencrypted file sintel-1024-stereo.mp4
+gst-launch-1.0 filesrc location=sintel-1024-stereo.mp4 ! qtdemux name=demux demux. ! queue ! avdec_h264 ! autovideosink demux. ! queue ! avdec_aac ! autoaudiosink
+
+# Play encrypted file sintel-1024-stereo-cenc.mp4
+# file ciphered with:
+# System ID:   00000000-0000-0000-0000-000000000000 (00000000000000000000000000000000)
+# Key ID:      121a0fca0f1b475b8910297fa8e0a07e
+# Content Key: a0a1a2a3a4a5a6a7a8a9aaabacadaeaf
+# Content IV:  4173706972655f61757468655f6b6579
+gst-launch-1.0 filesrc location=sintel-1024-stereo-cenc.mp4 ! qtdemux name=demux demux. ! queue ! cencdec name=videodscr ! avdec_h264 ! autovideosink demux. ! queue ! cencdec name=audiodscr ! avdec_aac ! autoaudiosink
+
+# To cipher file sintel-1024-stereo.mp4 in sintel-1024-stereo-cenc.mp4
+# First fragment it
+mp4fragment --timescale 10000000 --index sintel-1024-stereo.mp4 sintel-1024-stereo-fragmented.mp4
+# To get tracks ids
+mp4info sintel-1024-stereo-fragmented.mp4
+# Then cipher it
+mp4encrypt --method MPEG-CENC --global-option mpeg-cenc.encryption-layout:nalu-length-and-type-only --global-option mpeg-cenc.no-senc:true --global-option mpeg-cenc.iv-size-16:true --global-option mpeg-cenc.iv-size-8:false --show-progress --property 1:KID:121a0fca0f1b475b8910297fa8e0a07e --property 2:KID:121a0fca0f1b475b8910297fa8e0a07e --key 1:a0a1a2a3a4a5a6a7a8a9aaabacadaeaf:4173706972655f61757468655f6b6579 --key 2:a0a1a2a3a4a5a6a7a8a9aaabacadaeaf:4173706972655f61757468655f6b6579 --pssh 00000000000000000000000000000000:sintel-1024-stereo.pssh sintel-1024-stereo-fragmented.mp4 sintel-1024-stereo-cenc.mp4
+# PSSH file was generated as:
+# var pssh = [
+#     0x01, 0x00, 0x00, 0x00,                         // Full Box Hdr (version=1, flags=0)
+#     0x00, 0x00, 0x00, 0x02,                         // KID_count (1)
+#     0x12, 0x1a, 0x0f, 0xca, 0x0f, 0x1b, 0x47, 0x5b, //   1st KID ("121a0fca0f1b475b")
+#     0x89, 0x10, 0x29, 0x7f, 0xa8, 0xe0, 0xa0, 0x7e, //       ... ("8910297fa8e0a07e")
+#     0x12, 0x1a, 0x0f, 0xca, 0x0f, 0x1b, 0x47, 0x5b, //   2nd KID ("121a0fca0f1b475b")
+#     0x89, 0x10, 0x29, 0x7f, 0xa8, 0xe0, 0xa0, 0x7e, //       ... ("8910297fa8e0a07e")
+#     0x00, 0x00, 0x00, 0x00                         // Size of Data (0)
+# ];
+# with
+echo -n -e '\x00\x00\x00\x02\x12\x1a\x0f\xca\x0f\x1b\x47\x5b\x89\x10\x29\x7f\xa8\xe0\xa0\x7e\x12\x1a\x0f\xca\x0f\x1b\x47\x5b\x89\x10\x29\x7f\xa8\xe0\xa0\x7e\x00\x00\x00\x00' > sintel-1024-stereo.pssh
+
+# dump of the pssh with:
+od -A x -t x1z -v sintel-1024-stereo.pssh
+000000 00 00 00 02 12 1a 0f ca 0f 1b 47 5b 89 10 29 7f  >..........G[..).<
+000010 a8 e0 a0 7e 12 1a 0f ca 0f 1b 47 5b 89 10 29 7f  >...~......G[..).<
+000020 a8 e0 a0 7e 00 00 00 00                          >...~....<
+000028
+
+# dump of the PSSH in the mp4 file
+                                    |from here
+000550 00 00 00 00 00 00 00 00 00 00 00 00 00 48 70 73  >.............Hps<
+000560 73 68 00 00 00 00 00 00 00 00 00 00 00 00 00 00  >sh..............<
+000570 00 00 00 00 00 00 00 00 00 28 00 00 00 02 12 1a  >.........(......<
+000580 0f ca 0f 1b 47 5b 89 10 29 7f a8 e0 a0 7e 12 1a  >....G[..)....~..<
+000590 0f ca 0f 1b 47 5b 89 10 29 7f a8 e0 a0 7e 00 00  >....G[..)....~..<
+0005a0 00 00                                            >..              <
+
+BMFF Box Hdr
+size      00 00 00 4c   76 bytes
+mbox hdr  70 73 73 68   PSSH
+          
+echo -ne '\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf' > /tmp/43a75c2a50bc8766f01b409216c5a3a4842cc1e2.key
+echo -ne '\xa1\xa0\xa3\xa2\xa5\xa4\xa7\xa6\xa9\xa8\xab\xaa\xad\xac\xaf\xae' > /tmp/43a75c2a50bc8766f01b409216c5a3a4842cc1e2.key
+
+
+mp4encrypt --method MPEG-CENC --global-option mpeg-cenc.no-senc:true --global-option mpeg-cenc.iv-size-8:true --global-option mpeg-cenc.iv-size-16:false --show-progress --key 1:a0a1a2a3a4a5a6a7a8a9aaabacadaeaf:4173706972655f61757468655f6b6579 --key 2:a0a1a2a3a4a5a6a7a8a9aaabacadaeaf:4173706972655f61757468655f6b6579 --pssh 00000000000000000000000000000000:sintel-1024-stereo.pssh sintel-1024-stereo-fragmented.mp4 sintel-1024-stereo-cenc.mp4

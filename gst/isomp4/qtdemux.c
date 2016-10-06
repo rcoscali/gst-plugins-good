@@ -54,6 +54,7 @@
 #include "gst/gst-i18n-plugin.h"
 
 #include <glib/gprintf.h>
+#include <glib/gstdio.h>
 #include <gst/tag/tag.h>
 #include <gst/audio/audio.h>
 #include <gst/video/video.h>
@@ -406,6 +407,11 @@ struct _QtDemuxStream
   guint32 protection_scheme_version;
   gpointer protection_scheme_info;      /* specific to the protection scheme */
   GQueue protection_scheme_event_queue;
+
+  /* dot dumping */
+  gchar *dotfname;
+  FILE *dotfp;
+  guint dumpfcount;
 };
 
 /* Contains properties and cryptographic info for a set of samples from a
@@ -417,6 +423,53 @@ struct _QtDemuxCencSampleSetInfo
   /* @crypto_info holds one GstStructure per sample */
   GPtrArray *crypto_info;
 };
+
+static gboolean
+qt_demux_dump_traverse (GNode * node, gpointer data)
+{
+
+}
+
+static void
+qt_demux_dump_node (GstQTDemux * qtdemux, gchar * dumpfname)
+{
+  FILE *dotfp = qtdemux->dotfp;
+
+  if (G_UNLIKELY (qtdemux->dotfp != (FILE *) NULL))
+    g_close (fileno (qtdemux->dotfp));
+  qtdemux->dotfp = (FILE *) NULL;
+
+  if (G_UNLIKELY (qtdemux->dotfname != (gchar *) NULL))
+    g_free ((gpointer) qtdemux->dotfname);
+  qtdemux->dotfname = (gchar *) NULL;
+
+  qtdemux->dotfname = (gchar *) g_try_new0 (gchar, 128);
+  if (G_UNLIKELY (qtdemux->dotfname == (gchar *) NULL)) {
+    G_ERROR_OBJECT (qtdemux,
+        "Could not allocate memory for dump file name !! Aborting");
+  } else {
+    guchar access_ok = 0;
+    FILE *dotfp;
+
+    do {
+      sprintf (qtdemux->dotfname, "%s-(%02d).dot", dumpfname,
+          qtdemux->dumpfcount);
+      if (G_UNLIKELY (access_ok = g_access (fileno (qtdemux->dotfp), F_OK)))
+        qtdemux->dumpfcount++;
+    }
+    while (!access_ok);
+
+    dotfp = qtdemux->dotfp =
+        g_fopen (qtdemux->dotfname, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+
+    fprintf (dotfp, "digraph \"ISOBMFF\" {");
+    fprintf (dotfp, "graph [fontname = \"Helvetica-Oblique\", ");
+    fprintf (dotfp, "fontsize = 48, size = \"10\" ");
+    fprintf (dotfp, "] {\n");
+
+    //g_node_traverse ()
+  }
+}
 
 static const gchar *
 qt_demux_state_string (enum QtDemuxState state)
@@ -9156,6 +9209,7 @@ qtdemux_parse_protection_scheme_info (GstQTDemux * qtdemux,
     guint8 iv_size;
     const guint8 *default_kid;
     GstBuffer *kid_buf;
+    GstMemory *kid_value;
 
     if (G_UNLIKELY (!stream->protection_scheme_info))
       stream->protection_scheme_info =
@@ -9183,7 +9237,38 @@ qtdemux_parse_protection_scheme_info (GstQTDemux * qtdemux,
         "encrypted", G_TYPE_BOOLEAN, (isEncrypted == 1),
         "kid", GST_TYPE_BUFFER, kid_buf, NULL);
     GST_DEBUG_OBJECT (qtdemux, "default sample properties: "
-        "is_encrypted=%u, iv_size=%u", isEncrypted, iv_size);
+        "is_encrypted=%u, iv_size=%u, kid size=%lu",
+        isEncrypted, iv_size, gst_buffer_get_size (kid_buf));
+    if (!(kid_value = gst_buffer_get_all_memory (kid_buf))) {
+      GST_ERROR_OBJECT (qtdemux, "Cannot access kid_buf memory !!");
+    } else {
+      GstMapInfo kid_info;
+      int ix;
+
+      gst_memory_map (kid_value, &kid_info, GST_MAP_READ);
+
+      GST_DEBUG_OBJECT (qtdemux,
+          "Default Kid value: 0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+          kid_info.data[0], kid_info.data[1], kid_info.data[2],
+          kid_info.data[3], kid_info.data[4], kid_info.data[5],
+          kid_info.data[6], kid_info.data[7], kid_info.data[8],
+          kid_info.data[9], kid_info.data[10], kid_info.data[11],
+          kid_info.data[12], kid_info.data[13], kid_info.data[14],
+          kid_info.data[15]);
+      GST_DEBUG_OBJECT (qtdemux, "Default Kid value:");
+      for (ix = 0; ix < kid_info.size; ix += 16) {
+        gchar msg[128];
+        int iix;
+
+        for (iix = 0; (iix < 16) && ((ix + iix) < kid_info.size); iix++) {
+          msg[iix * 2] = (kid_info.data[ix + iix] >> 4) & 0x0F;
+          msg[iix * 2 + 1] = kid_info.data[ix + iix] & 0x0F;
+        }
+        GST_DEBUG_OBJECT (qtdemux, "%04x %s", ix, msg);
+      }
+      gst_memory_unmap (kid_value, &kid_info);
+      gst_memory_unref (kid_value);
+    }
     gst_buffer_unref (kid_buf);
   }
   return TRUE;
@@ -12369,7 +12454,7 @@ qtdemux_add_container_format (GstQTDemux * qtdemux, GstTagList * tags)
   else if (qtdemux->major_brand == FOURCC_qt__)
     fmt = "Quicktime";
   else if (qtdemux->fragmented)
-    fmt = "ISO fMP4";
+    fmt = "ISO frag MP4";
   else
     fmt = "ISO MP4/M4A";
 

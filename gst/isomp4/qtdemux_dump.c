@@ -56,13 +56,13 @@ qtdemux_dump_mvhd (GstQTDemux * qtdemux, GstByteReader * data, int depth)
     GST_LOG ("%*s  time scale:    1/%u sec", depth, "", GET_UINT32 (data));
     GST_LOG ("%*s  duration:      %u", depth, "", GET_UINT32 (data));
   } else if (version == 1) {
-    GST_LOG ("%*s  creation time: %" G_GUINT64_FORMAT,
-        depth, "", GET_UINT64 (data));
-    GST_LOG ("%*s  modify time:   %" G_GUINT64_FORMAT,
-        depth, "", GET_UINT64 (data));
+    GST_LOG ("%*s  creation time: %" G_GUINT64_FORMAT, depth, "",
+        GET_UINT64 (data));
+    GST_LOG ("%*s  modify time:   %" G_GUINT64_FORMAT, depth, "",
+        GET_UINT64 (data));
     GST_LOG ("%*s  time scale:    1/%u sec", depth, "", GET_UINT32 (data));
-    GST_LOG ("%*s  duration:      %" G_GUINT64_FORMAT,
-        depth, "", GET_UINT64 (data));
+    GST_LOG ("%*s  duration:      %" G_GUINT64_FORMAT, depth, "",
+        GET_UINT64 (data));
   } else
     return FALSE;
 
@@ -85,7 +85,7 @@ qtdemux_dump_tkhd (GstQTDemux * qtdemux, GstByteReader * data, int depth)
   guint64 duration, ctime, mtime;
   guint32 version = 0, track_id = 0, iwidth = 0, iheight = 0;
   guint16 layer = 0, alt_group = 0, ivol = 0;
-  guint value_size;
+  guint16 value_size;
 
   if (!gst_byte_reader_get_uint32_be (data, &version))
     return FALSE;
@@ -152,7 +152,7 @@ qtdemux_dump_mdhd (GstQTDemux * qtdemux, GstByteReader * data, int depth)
   guint64 duration, ctime, mtime;
   guint32 time_scale = 0;
   guint16 language = 0, quality = 0;
-  guint value_size;
+  guint16 value_size;
 
   if (!gst_byte_reader_get_uint32_be (data, &version))
     return FALSE;
@@ -208,7 +208,7 @@ qtdemux_dump_hdlr (GstQTDemux * qtdemux, GstByteReader * data, int depth)
     GST_LOG ("%*s  name:          %s", depth, "", name);
   } else {
     gchar buf[256];
-    guint len;
+    guint16 len;
 
     len = gst_byte_reader_get_uint8_unchecked (data);
     if (qt_atom_parser_has_remaining (data, len)) {

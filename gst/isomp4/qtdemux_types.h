@@ -30,8 +30,7 @@
 
 G_BEGIN_DECLS
 
-typedef gboolean (*QtDumpFunc) (GstQTDemux * qtdemux, GstByteReader * data,
-    int depth);
+typedef gboolean (*QtDumpFunc) (GstQTDemux * qtdemux, GstByteReader * data, int depth);
 
 typedef struct _QtNodeType QtNodeType;
 
