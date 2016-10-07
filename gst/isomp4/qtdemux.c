@@ -407,11 +407,6 @@ struct _QtDemuxStream
   guint32 protection_scheme_version;
   gpointer protection_scheme_info;      /* specific to the protection scheme */
   GQueue protection_scheme_event_queue;
-
-  /* dot dumping */
-  gchar *dotfname;
-  FILE *dotfp;
-  guint dumpfcount;
 };
 
 /* Contains properties and cryptographic info for a set of samples from a
@@ -425,49 +420,64 @@ struct _QtDemuxCencSampleSetInfo
 };
 
 static gboolean
-qt_demux_dump_traverse (GNode * node, gpointer data)
+qt_demux_dot_dump_traverse (GNode * node, gpointer data)
 {
 
+  return TRUE;
 }
 
-static void
-qt_demux_dump_node (GstQTDemux * qtdemux, gchar * dumpfname)
+void
+gst_qtdemux_dot_dump_node (GstQTDemux * qtdemux, gchar * dumpfname,
+    GError * gerr)
 {
   FILE *dotfp = qtdemux->dotfp;
 
+  /* Clear error */
+  g_clear_error (&gerr);
+
+  /* release old file ptr */
   if (G_UNLIKELY (qtdemux->dotfp != (FILE *) NULL))
-    g_close (fileno (qtdemux->dotfp));
+    g_close (fileno (qtdemux->dotfp), &gerr);
   qtdemux->dotfp = (FILE *) NULL;
 
+  /* release old file name */
   if (G_UNLIKELY (qtdemux->dotfname != (gchar *) NULL))
     g_free ((gpointer) qtdemux->dotfname);
   qtdemux->dotfname = (gchar *) NULL;
 
-  qtdemux->dotfname = (gchar *) g_try_new0 (gchar, 128);
+  /* alloc new dot file name */
+  qtdemux->dotfname =
+      (gchar *) g_try_new0 (gchar, MIN (128, strlen (dumpfname)));
   if (G_UNLIKELY (qtdemux->dotfname == (gchar *) NULL)) {
-    G_ERROR_OBJECT (qtdemux,
-        "Could not allocate memory for dump file name !! Aborting");
+    GST_ERROR_OBJECT (qtdemux,
+        "Could not allocate memory for dump file name" " !! Aborting");
   } else {
-    guchar access_ok = 0;
-    FILE *dotfp;
+    gboolean access_ok = 0;
 
+    g_strlcpy (qtdemux->dotfname, dumpfname, MIN (128, strlen (dumpfname)));
     do {
       sprintf (qtdemux->dotfname, "%s-(%02d).dot", dumpfname,
           qtdemux->dumpfcount);
-      if (G_UNLIKELY (access_ok = g_access (fileno (qtdemux->dotfp), F_OK)))
+      if (G_UNLIKELY ((access_ok = g_access (qtdemux->dotfname, F_OK)) == 0))
         qtdemux->dumpfcount++;
     }
-    while (!access_ok);
+    while (access_ok == 0);
 
-    dotfp = qtdemux->dotfp =
-        g_fopen (qtdemux->dotfname, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    qtdemux->dotfp = g_fopen (qtdemux->dotfname, "w+");
 
-    fprintf (dotfp, "digraph \"ISOBMFF\" {");
-    fprintf (dotfp, "graph [fontname = \"Helvetica-Oblique\", ");
-    fprintf (dotfp, "fontsize = 48, size = \"10\" ");
-    fprintf (dotfp, "] {\n");
+    fprintf (qtdemux->dotfp, "digraph \"ISOBMFF\" {");
+    fprintf (qtdemux->dotfp, "graph [fontname = \"Helvetica-Oblique\", ");
+    fprintf (qtdemux->dotfp, "fontsize = 48, size = \"10\" ");
+    fprintf (qtdemux->dotfp, "] {\n");
 
-    //g_node_traverse ()
+    g_node_traverse (qtdemux->moov_node,
+        G_IN_ORDER, G_TRAVERSE_ALL, 30, qt_demux_dot_dump_traverse, qtdemux);
+
+    fprintf (dotfp, "}\n");
+    g_close (fileno (dotfp), &gerr);
+    qtdemux->dotfp = (FILE *) NULL;
+    g_free (qtdemux->dotfname);
+    qtdemux->dotfname = (gchar *) NULL;
   }
 }
 

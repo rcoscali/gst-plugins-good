@@ -21,14 +21,14 @@
 #ifndef __GST_QTDEMUX_H__
 #define __GST_QTDEMUX_H__
 
+#include <stdio.h>
+
 #include <gst/gst.h>
 #include <gst/base/gstadapter.h>
 #include <gst/base/gstflowcombiner.h>
 #include "gstisoff.h"
 
-G_BEGIN_DECLS
-
-GST_DEBUG_CATEGORY_EXTERN (qtdemux_debug);
+G_BEGIN_DECLS GST_DEBUG_CATEGORY_EXTERN (qtdemux_debug);
 #define GST_CAT_DEFAULT qtdemux_debug
 
 #define GST_TYPE_QTDEMUX \
@@ -62,7 +62,8 @@ enum QtDemuxState
   QTDEMUX_STATE_BUFFER_MDAT     /* Buffering the mdat atom */
 };
 
-struct _GstQTDemux {
+struct _GstQTDemux
+{
   GstElement element;
 
   /* Global state */
@@ -77,10 +78,10 @@ struct _GstQTDemux {
   gboolean posted_redirect;
 
   QtDemuxStream *streams[GST_QTDEMUX_MAX_STREAMS];
-  gint     n_streams;
-  gint     n_video_streams;
-  gint     n_audio_streams;
-  gint     n_sub_streams;
+  gint n_streams;
+  gint n_video_streams;
+  gint n_audio_streams;
+  gint n_sub_streams;
 
   GstFlowCombiner *flowcombiner;
 
@@ -89,7 +90,7 @@ struct _GstQTDemux {
   gboolean have_group_id;
   guint group_id;
 
-  guint  major_brand;
+  guint major_brand;
   GstBuffer *comp_brands;
 
   /* [moov] header.
@@ -148,12 +149,12 @@ struct _GstQTDemux {
 
   /* Set to TRUE when all streams have been exposed */
   gboolean exposed;
-    
+
   gint64 chapters_track_id;
 
   /* protection support */
-  GPtrArray *protection_system_ids; /* Holds identifiers of all content protection systems for all tracks */
-  GQueue protection_event_queue; /* holds copy of upstream protection events */
+  GPtrArray *protection_system_ids;     /* Holds identifiers of all content protection systems for all tracks */
+  GQueue protection_event_queue;        /* holds copy of upstream protection events */
   guint64 cenc_aux_info_offset;
   guint8 *cenc_aux_info_sizes;
   guint32 cenc_aux_sample_count;
@@ -235,14 +236,20 @@ struct _GstQTDemux {
    * header start.
    * Note : This is not computed from the GST_BUFFER_OFFSET field */
   guint64 fragment_start_offset;
+
+  /* dot dumping */
+  gchar *dotfname;
+  FILE *dotfp;
+  guint dumpfcount;
 };
 
-struct _GstQTDemuxClass {
+struct _GstQTDemuxClass
+{
   GstElementClass parent_class;
 };
 
 GType gst_qtdemux_get_type (void);
 
+void gst_qtdemux_dot_dump_node (GstQTDemux *, gchar *, GError *);
 G_END_DECLS
-
 #endif /* __GST_QTDEMUX_H__ */

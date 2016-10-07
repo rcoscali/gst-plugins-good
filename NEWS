@@ -58,3 +58,5 @@ echo -ne '\xa1\xa0\xa3\xa2\xa5\xa4\xa7\xa6\xa9\xa8\xab\xaa\xad\xac\xaf\xae' > /t
 
 
 mp4encrypt --method MPEG-CENC --global-option mpeg-cenc.no-senc:true --global-option mpeg-cenc.iv-size-8:true --global-option mpeg-cenc.iv-size-16:false --show-progress --key 1:a0a1a2a3a4a5a6a7a8a9aaabacadaeaf:4173706972655f61757468655f6b6579 --key 2:a0a1a2a3a4a5a6a7a8a9aaabacadaeaf:4173706972655f61757468655f6b6579 --pssh 00000000000000000000000000000000:sintel-1024-stereo.pssh sintel-1024-stereo-fragmented.mp4 sintel-1024-stereo-cenc.mp4
+
+LD_PRELOAD=../inst/lib/x86_64-linux-gnu/gstreamer-1.0/libgstisomp4.so:../inst/lib/x86_64-linux-gnu/gstreamer-1.0/libgstcenccrypto.so ldd ../inst/bin/gst-launch-1.0 filesrc location=sintel-1024-stereo.mp4 ! qtdemux name=demux demux. ! queue ! avdec_h264 ! autovideosink demux. ! queue ! avdec_aac ! autoaudiosink
