@@ -83,8 +83,6 @@ gboolean qtdemux_dump_sdtp (GstQTDemux * qtdemux, GstByteReader * data,
     int depth);
 gboolean qtdemux_dump_tfdt (GstQTDemux * qtdemux, GstByteReader * data,
     int depth);
-gboolean qtdemux_dump_svmi (GstQTDemux * qtdemux, GstByteReader * data,
-    int depth);
 gboolean qtdemux_dump_senc (GstQTDemux * qtdemux, GstByteReader * data,
     int depth);
 gboolean qtdemux_dump_unknown (GstQTDemux * qtdemux, GstByteReader * data,
