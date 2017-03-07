@@ -5,19 +5,20 @@
 # Božidar Putanec <bozidarp@yahoo.com>, 2016.
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-good 1.7.2\n"
+"Project-Id-Version: gst-plugins-good-1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-09-01 11:23+0300\n"
-"PO-Revision-Date: 2016-05-27 12:47-0700\n"
+"POT-Creation-Date: 2017-02-24 12:48+0200\n"
+"PO-Revision-Date: 2016-11-19 10:22-0800\n"
 "Last-Translator: Božidar Putanec <bozidarp@yahoo.com>\n"
 "Language-Team: Croatian <lokalizacija@linux.hr>\n"
 "Language: hr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
-"X-Generator: Lokalize 2.0\n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 1.8.7.1\n"
 
 msgid "Jack server not found"
 msgstr "‘Jack’ poslužitelj nije pronađen"
@@ -36,9 +37,6 @@ msgstr "Spajanje na poslužitelj nije moguće"
 msgid "No URL set."
 msgstr "URL adresa nije imenovana."
 
-msgid "Server does not support seeking."
-msgstr "Poslužitelj ne podržava traženje."
-
 msgid "Could not resolve server name."
 msgstr "Nije moguće razriješiti ime poslužitelja."
 
@@ -55,6 +53,9 @@ msgstr ""
 
 msgid "Server sent bad data."
 msgstr "Poslužitelj je poslao neispravne podatke."
+
+msgid "Server does not support seeking."
+msgstr "Poslužitelj ne podržava traženje."
 
 msgid "No or invalid input audio, AVI stream will be corrupt."
 msgstr "Nema audio ulaza ili je neispravan, AVI stream će biti iskvaren."
@@ -262,11 +263,13 @@ msgstr "Videouređaj nije predočio izlazni format."
 msgid "Video device returned invalid dimensions."
 msgstr "Videouređaj je uzvratio s neispravnim dimenzijama."
 
-msgid "Video devices uses an unsupported interlacing method."
+#, fuzzy
+msgid "Video device uses an unsupported interlacing method."
 msgstr ""
 "Videouređaj koristi nepodržanu metodu poluslika (prored i frekvenciju)."
 
-msgid "Video devices uses an unsupported pixel format."
+#, fuzzy
+msgid "Video device uses an unsupported pixel format."
 msgstr "Videouređaj koristi nepodržani format piksela."
 
 msgid "Failed to configure internal buffer pool."

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-good 0.10.28.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-09-01 11:23+0300\n"
+"POT-Creation-Date: 2017-02-24 12:48+0200\n"
 "PO-Revision-Date: 2012-05-05 19:05+0100\n"
 "Last-Translator: Savvas Radevic <vicedar@gmail.com>\n"
 "Language-Team: Greek <team@lists.gnome.gr>\n"
@@ -16,6 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 "X-Generator: Lokalize 0.3\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -36,9 +37,6 @@ msgstr "Δεν ήταν δυνατή η σύνδεση με τον διακομ�
 msgid "No URL set."
 msgstr "Δεν ορίσθηκε URL."
 
-msgid "Server does not support seeking."
-msgstr "Ο διακομιστής δεν υποστηρίζει αναζήτηση."
-
 msgid "Could not resolve server name."
 msgstr "Δεν ήταν δυνατός ο προσδιορισμός του ονόματος του διακομιστή."
 
@@ -56,6 +54,9 @@ msgstr ""
 
 msgid "Server sent bad data."
 msgstr "Ο διακομιστής έστειλε λάθος δεδομένα."
+
+msgid "Server does not support seeking."
+msgstr "Ο διακομιστής δεν υποστηρίζει αναζήτηση."
 
 msgid "No or invalid input audio, AVI stream will be corrupt."
 msgstr "Καμία ή άκυρη εισαγωγή ήχου, η AVI ροή θα καταρρεύσει."
@@ -260,10 +261,11 @@ msgstr "Η συσκευή εισόδου βίντεο δεν αποδέχθηκ�
 msgid "Video device returned invalid dimensions."
 msgstr ""
 
-msgid "Video devices uses an unsupported interlacing method."
-msgstr ""
+#, fuzzy
+msgid "Video device uses an unsupported interlacing method."
+msgstr "Ο οδηγός της συσκευής '%s' δεν υποστηρίζει κάποια γνωστή μέθοδο λήψης."
 
-msgid "Video devices uses an unsupported pixel format."
+msgid "Video device uses an unsupported pixel format."
 msgstr ""
 
 msgid "Failed to configure internal buffer pool."
