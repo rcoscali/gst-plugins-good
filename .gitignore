@@ -65,3 +65,5 @@ Build
 
 /build
 /subprojects
+
+tests/check/elements/vp9enc
